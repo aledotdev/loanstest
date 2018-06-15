@@ -1,4 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.utils.decorators import method_decorator
+from django.contrib.admin.views.decorators import staff_member_required
 from django.views import View
 
 from .forms import LoanRequestForm
@@ -30,17 +32,20 @@ class LoanRequestView(View):
 
 
 class LoanRequestListView(View):
+    @method_decorator(staff_member_required)
     def get(self, request):
         content = {'loans': LoanRequest.objects.order_by('-id')}
         return render(request, 'loans/list.html', content)
 
 
 class LoanRequestEditView(View):
+    @method_decorator(staff_member_required)
     def get(self, request, loan_request_id):
         loan = get_object_or_404(LoanRequest, id=loan_request_id)
         form = LoanRequestForm(instance=loan)
         return render(request, 'loans/edit.html', dict(form=form))
 
+    @method_decorator(staff_member_required)
     def post(self, request, loan_request_id):
         loan = get_object_or_404(LoanRequest, id=loan_request_id)
         form = LoanRequestForm(request.POST, instance=loan)
@@ -53,6 +58,7 @@ class LoanRequestEditView(View):
 
 
 class LoadRequestDeleteView(View):
+    @method_decorator(staff_member_required)
     def get(self, request, loan_request_id):
         loan = get_object_or_404(LoanRequest, id=loan_request_id)
         loan.delete()
