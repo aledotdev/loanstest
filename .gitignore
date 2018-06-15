@@ -1,0 +1,11 @@
+venv
+*.pyc
+staticfiles
+.env
+db.sqlite3
+tmp/
+media_js/
+*.pem
+*.retry
+*.sass-cache
+
