@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 from django.views import View
 
 from .forms import LoanRequestForm
@@ -29,12 +29,31 @@ class LoanRequestView(View):
         return render(request, tpl)
 
 
-class LoanListView(View):
+class LoanRequestListView(View):
     def get(self, request):
         content = {'loans': LoanRequest.objects.order_by('-id')}
         return render(request, 'loans/list.html', content)
 
 
-class LoadDetailView(View):
-    def get(self, request):
-        pass
+class LoanRequestEditView(View):
+    def get(self, request, loan_request_id):
+        loan = get_object_or_404(LoanRequest, id=loan_request_id)
+        form = LoanRequestForm(instance=loan)
+        return render(request, 'loans/edit.html', dict(form=form))
+
+    def post(self, request, loan_request_id):
+        loan = get_object_or_404(LoanRequest, id=loan_request_id)
+        form = LoanRequestForm(request.POST, instance=loan)
+
+        if form.is_valid():
+            form.save()
+            return redirect('loan-request-list')
+
+        return render(request, 'loans/edit.html', dict(form=form))
+
+
+class LoadRequestDeleteView(View):
+    def get(self, request, loan_request_id):
+        loan = get_object_or_404(LoanRequest, id=loan_request_id)
+        loan.delete()
+        return redirect('loan-request-list')
